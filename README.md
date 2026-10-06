@@ -19,12 +19,18 @@ Brand identity -> seeds -> personas -> prompt
 * **Seed \& Persona Generation:** Extracts core user goals and pain points per seed to generate realistic buyer personas saved to personas_pool.
 * **Prompt Pool Expansion:** Automatically expands each persona into a matrix of targeted queries, stored in prompt_pool.
 
-### **2. Active Persona Selection \& Daily Cycle Strategy**
+![workflow for 1. Persona & Prompt Pool Generation](ss/1._Persona_&_Prompt_Pool_Generation.png.png)
+
+### **2. Active Persona Selection & Daily Cycle Strategy**
 * **Macro-Rotation (Monthly):** Uses usage-weighted scoring and a modified Fisher-Yates shuffle to rotate out \~30% of active personas monthly.
 * **Micro-Rotation (Daily):** Dynamically isolates active personas using a deterministic dayOfYear % target\_personas modulo algorithm, guaranteeing balanced round-robin execution.
 
+![workflow for 2. Active Persona Selection & Daily Cycle Strategy](ss/2._Active_Persona_Selection_and_Daily_Cycle_Strategy.png)
+
 ### **3. Execution:** 
 * Selected prompts are dispatched across OpenAI and Google Gemini APIs, with responses logged to prompt_answer.
+
+![workflow for 3. Execution](ss/3._Execution.png)
 
 ### **Data Tabels**
 * **seed_pool:** seed_id,lifecycle_stage,primary_intent,key_pain_points,contextual_barrier,usage_count,persona_cycle.  
