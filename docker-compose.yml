@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n_local
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RESTRICT_FILE_ACCESS_TO=/files
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./shared_files:/files
+
+  tts-engine:
+    image: ghcr.io/coqui-ai/xtts-streaming-server:latest-cpu
+    container_name: tts-engine
+    restart: always
+    ports:
+      - "8020:80"
+    environment:
+      - COQUI_TOS_AGREED=1 
+    volumes:
+      - ./shared_files/insta_reels_as_wav:/app/speakers
+
+volumes:
+  n8n_data:

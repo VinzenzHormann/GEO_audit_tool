@@ -1,0 +1,1991 @@
+{
+  "name": "ai_visibility",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        96,
+        1344
+      ],
+      "id": "9e84e070-c7eb-43fb-ae77-2ca8079914c6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bff540b7-050b-45c4-bdfa-ab6db2cd5e8c",
+              "name": "brand_identity",
+              "value": "{   \"brand_name\": \"Freya Art Route\",   \"industry_category\": \"Cultural Tourism / Art & Exhibition Route Planner\",   \"target_geography\": \"Local (Beyoğlu, Istanbul, Türkiye)\",   \"core_value_props\": [     \"Free personalized exhibition and museum route generator for Beyoğlu\",     \"Comprehensive directory featuring real-time venue status, contact info, opening houres, link to venue site and visitation conditions, free or paid info, short descriptiom\",     \"All venues in walking distance\",     \"Curated venues and way points\",     \"Includs landmarks (facts about historig buildings, statues, monuments) that are added to the route\",     \"Give est. walking time\",      \"Filterable museum and gallery directory (Pera Müzesi, İstanbul Modern, SALT, ARTER, etc.)\"     \"share_route button\",     \"free no usage limits\",     \"positive instagram tesimonials\",     \"optimazed route for walking\"   ],    \"direct_competitors\": [     \"google maps\",     \"Go Türkiye, Istanbul Modern Museum Guide https://goturkiye.com/istanbul/istanbul-modern \",     \"Kültür.istanbul / IBB Kültür\",     \"ArtDog Istanbul\",     \"Artkolik\",     \"Müze.gov.tr\",     \"tripadvisor\",     \"individual blog entries and lists like 1. https://www.istanbulugeziyorum.com/blog/istiklal-caddesinde-gezilecek-en-guzel-yerler-taksimden-tunele-keyifli-bir-rota-130.html 2. https://listelist.com/beyoglu-taksim-istanbul/#google_vignette \",     \"museums and galeries own websites\") \t   ],   \"perceived_user_barriers\": [     \"Geographic restriction (Currently limited to the Beyoğlu district in Istanbul)\",     \"Minimum 2-venue requirement to generate an automated route\",     \"Reliance on third-party links for ticket purchasing rather than direct in-app booking\",     \"only available as webapp, no googleplay or appstore download availabel\",     \"limited outreach\",     \"sometimes slow to open\"   ] }",
+              "type": "string"
+            },
+            {
+              "id": "39431782-6ec7-40a2-ba3d-e5f3a71f009b",
+              "name": "total_seeds",
+              "value": 30,
+              "type": "number"
+            },
+            {
+              "id": "36461794-8b64-458f-9192-ccffbbd9988c",
+              "name": "discovery_dist",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "d229e7b4-0f24-4eb1-b899-cb2d08e56035",
+              "name": "comparison_dist",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "5d337328-834b-44cd-bcad-5d8aaf4335c2",
+              "name": "brandtrust_dist",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "e01d5d90-3232-4cec-afaf-f336a6f003a1",
+              "name": "dropout_dist",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "71739551-7c29-48d8-9741-7057652871cb",
+              "name": "mode",
+              "value": "PARTIAL_SWAP",
+              "type": "string"
+            },
+            {
+              "id": "ce9156e3-7d32-4bf1-a6e5-0dad7d0df03d",
+              "name": "weekly_cycle_number",
+              "value": "3",
+              "type": "string"
+            },
+            {
+              "id": "773da632-08bd-4c52-af9a-86239b51749d",
+              "name": "relevant_lifestages",
+              "value": "DISCOVERY, COMPARISON, BRAND TRUST",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        1344
+      ],
+      "id": "cb58721f-0c28-454e-8fb7-d21b2e2e4c33",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-flash-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert AI Search & GEO (Generative Engine Optimization) Data Strategist.\nBased on the provided Brand Identity JSON, generate a comprehensive matrix of {{ $json.total_seeds }} distinct intent-driven seeds.\n\nInstructions:\nDistribute the {{ $json.total_seeds }} seeds balanced across the 4 GEO Lifecycle Stages:\nDISCOVERY ({{ $json.discovery_dist }}): Unaware of brand; focus on general needs, local activities, or broad queries.\nCOMPARISON ({{ $json.comparison_dist }}): Evaluating alternatives, comparing tools, or weighing options.\nBRAND TRUST ({{ $json.brandtrust_dist }}): Evaluating security, web speed, privacy, or validity.\nDROPOUT_CHURN ({{ $json.dropout_dist }}): Frustrated by limitations, looking for alternatives.\n\nEach seed MUST contain tight logical cohesion between primary_intent, key_pain_point, and perceived_barrier.\n\nReturn ONLY a valid JSON array of seed objects using the provided schema.\n[\n  {\n    \"seed_id\": \"SEED_01\",\n    \"lifecycle_stage\": \"DISCOVERY\", \"COMPARISON\", \"BRAND TRUST\" or \"DROPOUT_CHURN\"\n    \"primary_intent\": \"Find a concise 2-hour gallery walking route in Beyoğlu without manual planning.\",\n    \"key_pain_points\": [\n      \"Overwhelmed by generic pins on Google Maps\",\n      \"Doesn't want to install an app for a short visit\",\n      \"Short on time between afternoon coffee and dinner\"\n    ],\n    \"contextual_barrier\": \"Skeptical that web apps work smoothly on spotty mobile data.\"\n  }\n]\n\nBRAND ENTITY INPUT: {{ $json.brand_identity }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "78bff46d-c93c-4d87-840a-a794eb893805",
+      "name": "create_seed_data(30)",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6jwin2fIgNweQYBR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the raw text output from the model\nconst rawText = $input.item.json.content.parts[0].text;\n\n// 2. Clean out Markdown code blocks if present (e.g. ```json ... ```)\nconst cleanedText = rawText.replace(/```json\\n?|```/g, '').trim();\n\n// 3. Parse the JSON string into an array of objects\nconst seedsArray = JSON.parse(cleanedText);\n\n// 4. Map output items for n8n\nreturn seedsArray.map(seed => {\n  return {\n    json: {\n      seed_id: seed.seed_id || \"\",\n      lifecycle_stage: seed.lifecycle_stage || \"\",\n      primary_intent: seed.primary_intent || \"\",\n      key_pain_points: Array.isArray(seed.key_pain_points)\n        ? seed.key_pain_points.join(\" | \")\n        : (seed.key_pain_points || \"\"),\n      contextual_barrier: seed.contextual_barrier || \"\",\n      usage_count: 0,\n      persona_cycle: 1\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "f38bacda-0cb8-43fb-8ca7-84b0a1f37bfe",
+      "name": "turn_ai_output_into_parseable_json"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate the 10 seeds into one single array payload\nconst allSelected = $input.all().map(item => item.json);\n\nreturn [\n  {\n    json: {\n      seed_batch_size: allSelected.length,\n      seeds: allSelected\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "0a83979b-8f15-42bd-8682-c688995a7c72",
+      "name": "Aggregate Seeds1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get input from previous Gemini node\nconst inputData = $input.first().json;\n\n// 2. Safely extract raw text string from Gemini response structure\nlet rawText = \"\";\n\nif (inputData.content && inputData.content.parts && inputData.content.parts[0]) {\n  rawText = inputData.content.parts[0].text || \"\";\n} else if (inputData.parts && inputData.parts[0]) {\n  rawText = inputData.parts[0].text || \"\";\n} else if (typeof inputData.content === 'string') {\n  rawText = inputData.content;\n} else if (typeof inputData === 'string') {\n  rawText = inputData;\n}\n\nif (!rawText) {\n  throw new Error(\"Could not find raw text in Gemini response. Output structure: \" + JSON.stringify(inputData));\n}\n\n// 3. Clean up markdown backticks if Gemini wrapped output in ```json ... ```\nconst cleanText = rawText.replace(/```json/gi, \"\").replace(/```/g, \"\").trim();\n\n// 4. Parse JSON string into JavaScript objects\nlet personasArray = [];\n\ntry {\n  const parsed = JSON.parse(cleanText);\n  // Un-nest if wrapped in an object like { \"personas\": [...] }\n  if (Array.isArray(parsed)) {\n    personasArray = parsed;\n  } else if (parsed && typeof parsed === 'object') {\n    personasArray = parsed.personas || parsed.hydrated_personas || parsed.data || Object.values(parsed).find(Array.isArray) || [];\n  }\n} catch (err) {\n  throw new Error(\"Failed to parse Gemini output into JSON array: \" + err.message + \"\\nRaw Text snippet: \" + cleanText.substring(0, 150));\n}\n\nif (!Array.isArray(personasArray) || personasArray.length === 0) {\n  throw new Error(\"Parsed output is not an array of personas.\");\n}\n\n// 5. Current ISO Timestamp\nconst currentTimestamp = new Date().toISOString();\n\n// 6. Map each persona into the Hybrid Table Schema\nreturn personasArray.map((p, index) => {\n  const nestedPayload = {\n    demographics: p.demographics || {},\n    behavioral_attributes: p.behavioral_attributes || {},\n    context: {\n      language: p.language || p.context?.language || \"English\",\n      location_context: p.location_context || p.context?.location_context || \"\"\n    },\n    technical_profile: p.technical_profile || {}\n  };\n\n  return {\n    json: {\n      persona_id: p.persona_id || `PERS_${String(index + 1).padStart(2, '0')}`,\n      lifecycle_stage: p.lifecycle_stage || \"DISCOVERY\",\n      usage_count: 0,\n      persona_title: p.persona_title || \"Target Persona Profile\",\n      persona_json: JSON.stringify(nestedPayload),\n      created_at: currentTimestamp\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        0
+      ],
+      "id": "e14f4a94-6f55-42a1-8017-3d7e51497ff0",
+      "name": "format_ai_persona_output",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an AI Buyer Persona Strategist.\n\nYou will receive the Brand Identity JSON and an array of {{ $json.total_seeds }} Matrix Seeds.\nTransform each seed into a fully fleshed-out Persona object.\n\nInstructions:\n-Preserve the exact primary_intent, key_pain_points, and lifecycle_stage provided in the seed.\n-Add realistic demographics, language preferences, location contexts, and technical profiles that logically fit the seed's intent.\n\n-Return ONLY a valid JSON array matching the Persona output schema.\n\nthe 4 GEO Lifecycle Stages:\nDISCOVERY: Unaware of brand; focus on general needs, local activities, or broad queries.\nCOMPARISON : Evaluating alternatives, comparing tools, or weighing options.\nBRAND TRUST : Evaluating security, web speed, privacy, or validity.\nDROPOUT_CHURN: Frustrated by limitations, looking for alternatives.\n\n\npersona fields output:\n\nPERSONA FİELDS:\ngeneral:\n\"persona_id\"\n\"persona_title\" :short describitive sentence\n\"lifecycle_stage\": one of the 4 GEO Lifecycle Stages\n\"demographics\": {\n    \"age_group\": \"25-34\",\n    \"gender\": \"male, female\",\n    \"occupation_type\": \"Working Professional / Creative / student(university) / kid\",\n  }\n\"behavioral_attributes\": {\n    \"primary_intent\": \"Find a curated 2-hour walking route between galleries without heavy manual research.\",\n    \"key_pain_points\": [\n      \"Lacks time to read multiple travel blogs\",\n      \"Hates downloading dedicated apps for one-time events\",\n      \"Overwhelmed by generic pins on Google Maps\"\n    ],\n    \"brand_awareness_level\": \"Unaware\"\n  }\n\nwep_app, app specific\n\n    \"language\": \"English / Turkish\",\n    \"location_context\": \"Resident living in Kadıköy visiting Beyoğlu\"\n\"technical_profile\": {\n    \"technical_literacy\": \"Medium\",\n    \"device_preference\": \"Mobile Browser (No App Install)\"\n  }\n\nBRAND ENTITY INPUT: {{ $('Edit Fields').first().json.brand_identity }}\n\nMatrix Seeds:{{ $json.seeds }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        1296,
+        0
+      ],
+      "id": "e98c6392-3061-4439-8d90-d83049bf25ac",
+      "name": "generate_personas",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6jwin2fIgNweQYBR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.1-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3.1-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.prompt_text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        1968,
+        1472
+      ],
+      "id": "0ee11316-549e-4776-9425-95db8c1563c2",
+      "name": "Message a model1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6jwin2fIgNweQYBR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "v17PaZRmyfmGrpJL",
+          "mode": "list",
+          "cachedResultName": "prompt_returns",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/v17PaZRmyfmGrpJL"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt_id": "={{ $('Code in JavaScript').item.json.prompt_id }}",
+            "lifecycle_stage": "={{ $('Code in JavaScript').item.json.lifecycle_stage }}",
+            "prompt_type": "={{ $('Code in JavaScript').item.json.prompt_type }}",
+            "prompt_text": "={{ $('Code in JavaScript').item.json.prompt_text }}",
+            "prompt_return": "={{ $json.content.parts[0].text }}",
+            "run_date": "={{ $now.toFormat('yyyy-MM-dd') }}",
+            "model_name": "gemini-3.1.-flash-lite",
+            "ai_name": "gemini"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt_id",
+              "displayName": "prompt_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lifecycle_stage",
+              "displayName": "lifecycle_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prompt_type",
+              "displayName": "prompt_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "model_name",
+              "displayName": "model_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prompt_text",
+              "displayName": "prompt_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prompt_return",
+              "displayName": "prompt_return",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "run_date",
+              "displayName": "run_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ai_name",
+              "displayName": "ai_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2272,
+        1472
+      ],
+      "id": "1a5e2a15-dec2-4ced-8d5b-6ee9974d19bb",
+      "name": "Insert row1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1600,
+        1344
+      ],
+      "id": "ca002596-3021-40bd-bd86-6dc2fec18ea2",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "v17PaZRmyfmGrpJL",
+          "mode": "list",
+          "cachedResultName": "prompt_returns",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/v17PaZRmyfmGrpJL"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2400,
+        1328
+      ],
+      "id": "462a5990-8616-4c0d-a805-0f21d4d78916",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "v17PaZRmyfmGrpJL",
+          "mode": "list",
+          "cachedResultName": "prompt_returns",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/v17PaZRmyfmGrpJL"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "run_date",
+              "keyValue": "={{ $now.toFormat('yyyy-MM-dd') }}"
+            },
+            {
+              "keyName": "ai_name",
+              "keyValue": "gemini"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        1344
+      ],
+      "id": "0308daa7-86bf-41ae-9b30-f07c78df9a92",
+      "name": "get_prompt_returns",
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1776,
+        1472
+      ],
+      "id": "e40b3626-4b13-428b-8189-f952a688888a",
+      "name": "Wait",
+      "webhookId": "4a3f95dc-424d-4151-a089-4e2ffe05b88f"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1584,
+        1840
+      ],
+      "id": "707ff972-8d95-4d5e-b529-1a33f4fd3084",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1776,
+        1952
+      ],
+      "id": "2255dad2-18a4-4f5b-897d-c37cb7c8e667",
+      "name": "Wait1",
+      "webhookId": "4a3f95dc-424d-4151-a089-4e2ffe05b88f"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "v17PaZRmyfmGrpJL",
+          "mode": "list",
+          "cachedResultName": "prompt_returns",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/v17PaZRmyfmGrpJL"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt_id": "={{ $('Code in JavaScript1').item.json.prompt_id }}",
+            "lifecycle_stage": "={{ $('Code in JavaScript1').item.json.lifecycle_stage }}",
+            "prompt_type": "={{ $('Code in JavaScript1').item.json.prompt_type }}",
+            "prompt_text": "={{ $('Code in JavaScript1').item.json.prompt_text }}",
+            "prompt_return": "={{ $json.choices[0].message.content }}",
+            "run_date": "={{ $now.toFormat('yyyy-MM-dd') }}",
+            "model_name": "gpt-4o-mini-search-preview",
+            "ai_name": "chatgpt"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt_id",
+              "displayName": "prompt_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lifecycle_stage",
+              "displayName": "lifecycle_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prompt_type",
+              "displayName": "prompt_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "model_name",
+              "displayName": "model_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prompt_text",
+              "displayName": "prompt_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prompt_return",
+              "displayName": "prompt_return",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "run_date",
+              "displayName": "run_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ai_name",
+              "displayName": "ai_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2304,
+        1952
+      ],
+      "id": "33e924a1-3564-4e8e-9fc6-7bd2a2205333",
+      "name": "Insert row2"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "v17PaZRmyfmGrpJL",
+          "mode": "list",
+          "cachedResultName": "prompt_returns",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/v17PaZRmyfmGrpJL"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2480,
+        1824
+      ],
+      "id": "3f7ef3f9-85ac-453d-b579-53b8235aaf85",
+      "name": "Get row(s)1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Target provider tag\nconst TARGET_AI = \"gemini\";\n\n// 1. Get today's 15 target prompts calculated upstream\nconst todays15Prompts = $(\"fetch_todays_prompts\").all().map(item => item.json);\n\n// 2. Get today's returns from the Gemini database query node\nconst existingReturns = $input.all().map(item => item.json);\n\nconst todayStrIso = $now.toFormat('yyyy-MM-dd');\nconst todayStrEur = $now.toFormat('dd.MM.yyyy');\n\n// 3. Collect prompt_ids already processed today for THIS specific provider\nconst completedTodayIds = existingReturns\n  .filter(r => {\n    if (!r || !r.prompt_id) return false;\n    \n    // Match provider column (case-insensitive check)\n    const provider = String(r.ai || \"\").toLowerCase().trim();\n    if (provider && provider !== TARGET_AI) return false;\n\n    // Match execution date\n    const runDate = String(r.run_date || r.createdAt || r.date || \"\");\n    if (!runDate || runDate === \"undefined\") return true; \n\n    return runDate.includes(todayStrIso) || runDate.includes(todayStrEur);\n  })\n  .map(r => r.prompt_id);\n\n// 4. Exclude completed prompts\nconst remainingPrompts = todays15Prompts.filter(p => !completedTodayIds.includes(p.prompt_id));\n\nreturn remainingPrompts.map(p => ({ json: p }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        1344
+      ],
+      "id": "a3f7d810-fa2a-44d6-9ea2-f9e2f0c732b6",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Fetch settings dynamically\nconst settings = $('Edit Fields').first().json;\nlet rawStages = settings.relevant_lifestages || settings.relevant_stages || [\"DISCOVERY\", \"COMPARISON\", \"BRAND TRUST\"];\nif (typeof rawStages === 'string') {\n  rawStages = rawStages.split(',').map(s => s.trim());\n}\n\n// Helper: Normalize lifecycle stage strings (removes quotes, converts spaces/underscores)\nfunction normalizeStage(stageStr) {\n  return String(stageStr || '')\n    .replace(/[\"']/g, '')\n    .toUpperCase()\n    .replace(/[\\s_]+/g, '_')\n    .trim();\n}\n\n// 2. Fetch all 45 incoming prompts from the active personas\nconst allPrompts = $input.all().map(item => item.json);\n\n// 3. Dynamically group unique persona_ids by normalized lifecycle_stage\nconst stagesMap = {};\nfor (const stage of rawStages) {\n  const cleanKey = normalizeStage(stage);\n  if (cleanKey) stagesMap[cleanKey] = new Set();\n}\n\nfor (const p of allPrompts) {\n  const normalizedPStage = normalizeStage(p.lifecycle_stage);\n  const personaId = p.persona_id;\n\n  if (stagesMap[normalizedPStage] && personaId) {\n    stagesMap[normalizedPStage].add(personaId);\n  }\n}\n\n// 4. Calculate Day of the Year\nconst now = new Date();\nconst startOfYear = new Date(now.getFullYear(), 0, 0);\nconst diff = now - startOfYear;\nconst oneDay = 1000 * 60 * 60 * 24;\nconst dayOfYear = Math.floor(diff / oneDay);\n\n// 5. Select today's target Persona ID for each configured stage\nconst todaysPersonaIds = [];\n\nfor (const stage of rawStages) {\n  const stageKey = normalizeStage(stage);\n  const stagePersonas = Array.from(stagesMap[stageKey] || []).sort();\n\n  if (stagePersonas.length > 0) {\n    // Round-robin selection: dayOfYear modulo number of active personas in stage\n    const selectedPersonaId = stagePersonas[dayOfYear % stagePersonas.length];\n    todaysPersonaIds.push(selectedPersonaId);\n  }\n}\n\n// 6. Filter all active prompts down to today's target personas (5 prompts x target personas)\nconst todaysTargetPrompts = allPrompts.filter(p => todaysPersonaIds.includes(p.persona_id));\n\n// Return items ready for execution / generation batching\nreturn todaysTargetPrompts.map(p => ({ json: p }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        1344
+      ],
+      "id": "f3d84c15-0058-472c-bae3-02c27a84814d",
+      "name": "fetch_todays_prompts"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "v17PaZRmyfmGrpJL",
+          "mode": "list",
+          "cachedResultName": "prompt_returns",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/v17PaZRmyfmGrpJL"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "run_date",
+              "keyValue": "={{ $now.toFormat('yyyy-MM-dd') }}"
+            },
+            {
+              "keyName": "ai_name",
+              "keyValue": "chatgpt"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        1840
+      ],
+      "id": "1a5e76ac-00a4-4953-80e6-9dea39c44789",
+      "name": "get_prompt_returns1",
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Target provider tag\nconst TARGET_AI = \"chatgpt\";\n\n// 1. Get today's 15 target prompts calculated upstream\nconst todays15Prompts = $(\"fetch_todays_prompts\").all().map(item => item.json);\n\n// 2. Get today's returns from the Gemini database query node\nconst existingReturns = $input.all().map(item => item.json);\n\nconst todayStrIso = $now.toFormat('yyyy-MM-dd');\nconst todayStrEur = $now.toFormat('dd.MM.yyyy');\n\n// 3. Collect prompt_ids already processed today for THIS specific provider\nconst completedTodayIds = existingReturns\n  .filter(r => {\n    if (!r || !r.prompt_id) return false;\n    \n    // Match provider column (case-insensitive check)\n    const provider = String(r.ai || \"\").toLowerCase().trim();\n    if (provider && provider !== TARGET_AI) return false;\n\n    // Match execution date\n    const runDate = String(r.run_date || r.createdAt || r.date || \"\");\n    if (!runDate || runDate === \"undefined\") return true; \n\n    return runDate.includes(todayStrIso) || runDate.includes(todayStrEur);\n  })\n  .map(r => r.prompt_id);\n\n// 4. Exclude completed prompts\nconst remainingPrompts = todays15Prompts.filter(p => !completedTodayIds.includes(p.prompt_id));\n\nreturn remainingPrompts.map(p => ({ json: p }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        1840
+      ],
+      "id": "27fa26b4-e510-41b0-9398-6146eadb4ab2",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ $json.prompt_text }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1984,
+        1952
+      ],
+      "id": "3189d590-b91f-4309-906a-64170553443a",
+      "name": "HTTP Request",
+      "credentials": {
+        "openAiApi": {
+          "id": "nkJiDDyXkki5GNj6",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 1. Persona \\& Prompt Pool Generation\n",
+        "height": 80,
+        "width": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "81016b5c-deb1-470b-86d3-907f30b5246e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get raw input from previous Gemini model node\nconst inputData = $input.first().json;\n\n// 2. Safely extract raw text string from Gemini output\nlet rawText = \"\";\n\nif (inputData.content && inputData.content.parts && inputData.content.parts[0]) {\n  rawText = inputData.content.parts[0].text || \"\";\n} else if (inputData.parts && inputData.parts[0]) {\n  rawText = inputData.parts[0].text || \"\";\n} else if (typeof inputData.content === 'string') {\n  rawText = inputData.content;\n} else if (typeof inputData === 'string') {\n  rawText = inputData;\n}\n\nif (!rawText) {\n  throw new Error(\"Could not find raw text in Gemini response.\");\n}\n\n// 3. Clean markdown formatting backticks\nlet cleanText = rawText.replace(/```json/gi, \"\").replace(/```/g, \"\").trim();\n\n// 4. Handle truncated or incomplete JSON safely\n// If the LLM cut off mid-array, close the JSON array string\nif (!cleanText.endsWith(\"]\")) {\n  const lastObjectEnd = cleanText.lastIndexOf(\"}\");\n  if (lastObjectEnd !== -1) {\n    cleanText = cleanText.substring(0, lastObjectEnd + 1) + \"\\n]\";\n  }\n}\n\n// 5. Parse JSON array\nlet promptsArray = [];\n\ntry {\n  const parsed = JSON.parse(cleanText);\n  if (Array.isArray(parsed)) {\n    promptsArray = parsed;\n  } else if (parsed && typeof parsed === 'object') {\n    promptsArray = parsed.prompts || parsed.data || Object.values(parsed).find(Array.isArray) || [];\n  }\n} catch (err) {\n  throw new Error(\"Failed to parse Prompts JSON array: \" + err.message + \"\\nSnippet: \" + cleanText.substring(0, 150));\n}\n\nif (!Array.isArray(promptsArray) || promptsArray.length === 0) {\n  throw new Error(\"No valid prompt items found in response.\");\n}\n\n// 6. Return mapped output items for n8n pipeline downstream\nreturn promptsArray.map((p, index) => {\n  return {\n    json: {\n      prompt_id: p.prompt_id || `PR_${String(index + 1).padStart(0, '0')}`,\n      persona_id: p.persona_id || \"UNKNOWN\",\n      lifecycle_stage: p.lifecycle_stage || \"DISCOVERY\",\n      prompt_type: p.prompt_type || \"Conversational\",\n      prompt_text: p.prompt_text || \"\",\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2288,
+        448
+      ],
+      "id": "e9d85d09-17eb-4d01-8dd4-c5826d03285c",
+      "name": "format_ai_output_into_json1"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "IDor3CGBdf3G2k5H",
+          "mode": "list",
+          "cachedResultName": "prompt_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/IDor3CGBdf3G2k5H"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt_id": "={{ $json.prompt_id }}",
+            "persona_id": "={{ $json.persona_id }}",
+            "lifecycle_stage": "={{ $json.lifecycle_stage }}",
+            "prompt_type": "={{ $json.prompt_type }}",
+            "prompt_text": "={{ $json.prompt_text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt_id",
+              "displayName": "prompt_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "persona_id",
+              "displayName": "persona_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lifecycle_stage",
+              "displayName": "lifecycle_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prompt_type",
+              "displayName": "prompt_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prompt_text",
+              "displayName": "prompt_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2560,
+        448
+      ],
+      "id": "78b9ec10-0e61-407d-b78a-03b214ca4953",
+      "name": "inser_prompts_in_prompt_pool1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert Generative Engine Optimization (GEO) Analyst and Search Intent Strategist.\n\nYOUR TASK:\nTake the provided array of 10 structured Personas and generate 50 realistic, natural-language prompts (5 distinct prompts per persona) in TURKISH. These prompts will be sent to AI models (ChatGPT, Claude, Gemini) to audit brand visibility for \"Freya Art / Beyoğlu Sanat Rotası\".\n\n---\n\n### GENERATION RULES:\n\n1. LANGUAGE & NATURALNESS:\n- Write all prompts in authentic, natural Turkish as written by real users.\n- Vary the prompt lengths across the 5 prompts per persona: include short search-style queries, medium conversational questions, and longer multi-sentence contextual prompts.\n- Include natural phrasing, occasional missing turkish diacritics (mobile typing style), or everyday conversational tone.\n\n2. LIFECYCLE STAGE STICKINESS:\n- DISCOVERY: Absolutely NO mention of \"Freya\" or \"Freya Art\". Focus purely on location (Beyoğlu, Taksim, Galata), needs (2-hour walk, student budget, free exhibitions), and general solutions.\n- COMPARISON: Focus on comparing generic options or existing apps (Google Maps, Kültür.istanbul, ArtDog) against specialized web-based route planners.\n- BRAND TRUST: Explicitly mention the brand (\"Freya Art Sanat Rotası\", \"FreyaArt seergi rehberi\", \"Freya Beyoğlu Sanat Rotası\" and alternatives) and even somtimes the website (https://www.freyartt.com/beyoglu-sergi-rehberi/ or https://www.freyartt.com/) and ask about credibility, pricing, live venue accuracy, or sign-up requirements.\n- DROPOUT / CHURN: Mention the brand and express specific limitations (e.g., \"only Beyoğlu\", \"requires 2 venues\") while asking for alternatives or broader city coverage.\n\n3. CONTEXT INTEGRATION:\n- Indirectly reflect the persona's key pain points and location context (e.g., P03 mentioning student discount/free entry; P05 specifying \"app indirmeden / web sitesi üzerinden\").\n\n---\n\n### OUTPUT FORMAT REQUIREMENTS:\n\nReturn ONLY a valid JSON array of 50 prompt objects. Do NOT wrap in introductory or concluding text.\n\n[\n  {\n    \"prompt_id\": \"P001PR001\",\n    \"persona_id\": \"P-001\",\n    \"lifecycle_stage\": \"DISCOVERY\",\n    \"prompt_type\": \"Short / Conversational / Complex\",\n    \"prompt_text\": \"The exact Turkish text to send to the AI model\",\n  }\n]\nBrand Identity: {{ $('Edit Fields').first().json.brand_identity }}\n\nPersonas: {{ JSON.stringify($json.seeds) }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        1984,
+        448
+      ],
+      "id": "f7930436-a23e-4c0a-9dc7-e0e7017ed09a",
+      "name": "generate_promopts1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6jwin2fIgNweQYBR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YGOy3MLg2A0DhlZe",
+          "mode": "list",
+          "cachedResultName": "personas_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/YGOy3MLg2A0DhlZe"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        320
+      ],
+      "id": "ce9bc35d-e120-4ce3-bbaf-bd183ce5df49",
+      "name": "get_personas"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "YGOy3MLg2A0DhlZe",
+          "mode": "list",
+          "cachedResultName": "personas_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/YGOy3MLg2A0DhlZe"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "persona_id": "={{ $json.persona_id }}",
+            "lifecycle_stage": "={{ $json.lifecycle_stage }}",
+            "usage_count": "={{ $json.usage_count }}",
+            "persona_title": "={{ $json.persona_title }}",
+            "persona_json": "={{ $json.persona_json }}",
+            "active_persona": "false"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "persona_id",
+              "displayName": "persona_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lifecycle_stage",
+              "displayName": "lifecycle_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "usage_count",
+              "displayName": "usage_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active_persona",
+              "displayName": "active_persona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "persona_title",
+              "displayName": "persona_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "persona_json",
+              "displayName": "persona_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1872,
+        0
+      ],
+      "id": "91e801f5-9e4a-4d5e-86cd-548578c4b010",
+      "name": "insert_to_persona_pool"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1536,
+        320
+      ],
+      "id": "757f3677-1260-4947-8ebc-8d9e8b16df6f",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        448
+      ],
+      "id": "7724fe05-65ef-4131-b637-6a8c33fc9a93",
+      "name": "Wait2",
+      "webhookId": "d20a9c77-4720-4247-9d25-fc32d8f918fc"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "IDor3CGBdf3G2k5H",
+          "mode": "list",
+          "cachedResultName": "prompt_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/IDor3CGBdf3G2k5H"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2784,
+        304
+      ],
+      "id": "9a88bdeb-f3ff-4a1e-bd34-3df260279f61",
+      "name": "Get row(s)2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get all incoming seeds/personas\nconst allSelected = $input.all().map(item => item.json);\n\n// 2. Define batch size\nconst BATCH_SIZE = 10;\nconst batches = [];\n\n// 3. Chunk items into arrays of 10\nfor (let i = 0; i < allSelected.length; i += BATCH_SIZE) {\n  const batch = allSelected.slice(i, i + BATCH_SIZE);\n  batches.push({\n    json: {\n      batch_number: Math.floor(i / BATCH_SIZE) + 1,\n      total_batches: Math.ceil(allSelected.length / BATCH_SIZE),\n      seed_batch_size: batch.length,\n      seeds: batch\n    }\n  });\n}\n\n// 4. Return array of 3 items (Batch 1: 10 items, Batch 2: 10 items, Batch 3: 10 items)\nreturn batches;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        320
+      ],
+      "id": "5b09a08e-7c41-45cc-95fc-798912edce21",
+      "name": "batch_personas_in_10_item_batches"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "IDor3CGBdf3G2k5H",
+          "mode": "list",
+          "cachedResultName": "prompt_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/IDor3CGBdf3G2k5H"
+        },
+        "matchType": "allConditions"
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        320
+      ],
+      "id": "0f750d05-a06f-4a6d-811d-5f94aa17cae6",
+      "name": "Get row(s)3",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get all 3 original batches (10 personas / 50 prompts each)\nconst allBatches = $(\"batch_personas_in_10_item_batches\").all().map(item => item.json);\n\n// 2. Get already created prompts/returns from your database node\nconst existingPrompts = $input.all().map(item => item.json);\n\n// 3. Collect persona_ids that ALREADY have prompts in the database today\nconst completedPersonaIds = new Set(\n  existingPrompts\n    .map(p => p.persona_id)\n    .filter(Boolean)\n);\n\n// 4. Filter the 3 batches: keep only batches that have UNPROCESSED personas\nconst remainingBatches = [];\n\nfor (const batch of allBatches) {\n  const seedsInBatch = batch.seeds || [];\n  \n  // Check if at least ONE persona in this batch is missing from the database\n  const hasUnprocessedPersona = seedsInBatch.some(\n    seed => !completedPersonaIds.has(seed.persona_id)\n  );\n\n  // If the batch contains unprocessed personas, keep it in the execution queue!\n  if (hasUnprocessedPersona) {\n    remainingBatches.push({ json: batch });\n  }\n}\n\n// 5. Output only the batches that actually need execution\nreturn remainingBatches;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        320
+      ],
+      "id": "7917cb04-2801-4452-a82c-c2674a71bf47",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YGOy3MLg2A0DhlZe",
+          "mode": "list",
+          "cachedResultName": "personas_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/YGOy3MLg2A0DhlZe"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        800
+      ],
+      "id": "e34d5ea2-79c0-4e2c-a79a-95df2f8ce8b5",
+      "name": "Get row(s)4"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YGOy3MLg2A0DhlZe",
+          "mode": "list",
+          "cachedResultName": "personas_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/YGOy3MLg2A0DhlZe"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "persona_id",
+              "keyValue": "={{ $json.persona_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "active_persona": "={{ $json.active_persona }}",
+            "usage_count": "={{ $json.usage_count }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "persona_id",
+              "displayName": "persona_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lifecycle_stage",
+              "displayName": "lifecycle_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "usage_count",
+              "displayName": "usage_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active_persona",
+              "displayName": "active_persona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "persona_title",
+              "displayName": "persona_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "persona_json",
+              "displayName": "persona_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1424,
+        720
+      ],
+      "id": "09654016-ed19-426f-8c0a-104f43a81f94",
+      "name": "Update row(s)"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Active Persona Selection \\& Daily Cycle Strategy",
+        "height": 80,
+        "width": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        688
+      ],
+      "typeVersion": 1,
+      "id": "eada5425-8680-44bf-8c8a-af5969886caa",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Fetch settings dynamically\nconst settings = $('Edit Fields').first().json;\n\n// Extract raw string or array\nlet rawStages = settings.relevant_lifestages ;\nif (typeof rawStages === 'string') {\n  rawStages = rawStages.split(',').map(s => s.trim());\n}\n\nconst targetCountPerStage = Number(settings.weekly_cycle_number);\n\n// 2. Extract personas directly from incoming input items\nconst allPersonas = $('Get row(s)4').all().map(item => item.json);\n\n// Helper: Completely strip quotes, convert spaces to underscores, and uppercase\nfunction normalizeStage(stageStr) {\n  return String(stageStr || '')\n    .replace(/[\"']/g, '')         // Removes literal double/single quotes\n    .toUpperCase()\n    .replace(/[\\s_]+/g, '_')       // Normalizes spaces to underscores\n    .trim();\n}\n\n// Helper: Fisher-Yates Shuffle\nfunction shuffle(array) {\n  const arr = [...array];\n  for (let i = arr.length - 1; i > 0; i--) {\n    const j = Math.floor(Math.random() * (i + 1));\n    [arr[i], arr[j]] = [arr[j], arr[i]];\n  }\n  return arr;\n}\n\n// 3. Dynamically group personas with clean keys\nconst stagesMap = {};\nfor (const stage of rawStages) {\n  const cleanKey = normalizeStage(stage);\n  if (cleanKey) stagesMap[cleanKey] = [];\n}\n\nfor (const p of allPersonas) {\n  const normalizedPStage = normalizeStage(p.lifecycle_stage);\n  if (stagesMap[normalizedPStage]) {\n    stagesMap[normalizedPStage].push(p);\n  }\n}\n\n// 4. Dynamic Selection Function\nfunction selectPersonasForStage(personasInStage, targetCount) {\n  if (!personasInStage || personasInStage.length === 0) return [];\n\n  const usageGroups = {};\n  for (const p of personasInStage) {\n    const count = Number(p.usage_count || 0);\n    if (!usageGroups[count]) usageGroups[count] = [];\n    usageGroups[count].push(p);\n  }\n\n  const sortedCounts = Object.keys(usageGroups).map(Number).sort((a, b) => a - b);\n  const selected = [];\n\n  for (const count of sortedCounts) {\n    const randomizedGroup = shuffle(usageGroups[count]);\n    for (const persona of randomizedGroup) {\n      if (selected.length < targetCount) {\n        selected.push(persona);\n      }\n    }\n    if (selected.length >= targetCount) break;\n  }\n\n  return selected;\n}\n\n// 5. Select target count per stage\nconst selectedPersonas = [];\nfor (const stage of rawStages) {\n  const stageKey = normalizeStage(stage);\n  const pickedForStage = selectPersonasForStage(stagesMap[stageKey], targetCountPerStage);\n  selectedPersonas.push(...pickedForStage);\n}\n\n// 6. Output formatted for Update row(s)\nconst updatedPersonas = selectedPersonas.map(p => {\n  const currentUsage = Number(p.usage_count || 0);\n  return {\n    ...p,\n    usage_count: currentUsage + 1,\n    active_persona: \"true\"\n  };\n});\n\nreturn updatedPersonas.map(p => ({ json: p }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        720
+      ],
+      "id": "509cab8a-de10-41c4-a83b-429d2f9bf162",
+      "name": "select_initial_active_personas"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Fetch all 30 personas from input\nconst allPersonas = $input.all().map(item => item.json);\n\n// Helper: Fisher-Yates Shuffle for random tie-breaking\nfunction shuffle(array) {\n  const arr = [...array];\n  for (let i = arr.length - 1; i > 0; i--) {\n    const j = Math.floor(Math.random() * (i + 1));\n    [arr[i], arr[j]] = [arr[j], arr[i]];\n  }\n  return arr;\n}\n\n// 2. Separate active vs inactive personas grouped by stage\nconst stages = [\"DISCOVERY\", \"COMPARISON\", \"BRAND TRUST\"];\nconst activeByStage = { \"DISCOVERY\": [], \"COMPARISON\": [], \"BRAND TRUST\": [] };\nconst inactiveByStage = { \"DISCOVERY\": [], \"COMPARISON\": [], \"BRAND TRUST\": [] };\n\nfor (const p of allPersonas) {\n  const stage = (p.lifecycle_stage || \"\").toUpperCase().trim();\n  const isActive = String(p.active_persona).toLowerCase() === \"true\";\n\n  if (stages.includes(stage)) {\n    if (isActive) {\n      activeByStage[stage].push(p);\n    } else {\n      inactiveByStage[stage].push(p);\n    }\n  }\n}\n\nconst dismissedPersonas = [];\nconst addedPersonas = [];\n\n// 3. Process each stage: Dismiss 1 random active persona, Activate 1 lowest-used inactive persona\nfor (const stage of stages) {\n  const activeList = activeByStage[stage];\n  const inactiveList = inactiveByStage[stage];\n\n  // A. Pick 1 active persona to dismiss (Random selection among current active ones)\n  if (activeList.length > 0) {\n    const randomDismissTarget = shuffle(activeList)[0];\n    dismissedPersonas.push({\n      ...randomDismissTarget,\n      active_persona: \"false\",\n      action_tag: \"DISMISSED\"\n    });\n  }\n\n  // B. Pick 1 inactive persona to activate (Lowest usage_count first)\n  if (inactiveList.length > 0) {\n    // Group inactive personas by usage count\n    const usageGroups = {};\n    for (const p of inactiveList) {\n      const count = Number(p.usage_count || 0);\n      if (!usageGroups[count]) usageGroups[count] = [];\n      usageGroups[count].push(p);\n    }\n\n    // Find lowest usage tier\n    const lowestCount = Math.min(...Object.keys(usageGroups).map(Number));\n    const lowestUsedCandidates = shuffle(usageGroups[lowestCount]);\n    const chosenCandidate = lowestUsedCandidates[0];\n\n    addedPersonas.push({\n      ...chosenCandidate,\n      active_persona: \"true\",\n      usage_count: Number(chosenCandidate.usage_count || 0) + 1,\n      action_tag: \"ACTIVATED\"\n    });\n  }\n}\n\n// 4. Combine all modified rows (3 dismissed + 3 activated = 6 rows to update in DB)\nconst allUpdates = [...dismissedPersonas, ...addedPersonas];\n\nreturn allUpdates.map(p => ({ json: p }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        992
+      ],
+      "id": "f47281b3-e2e3-4df9-8dff-0d615bf2fc88",
+      "name": "monthly_replace_personas"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YGOy3MLg2A0DhlZe",
+          "mode": "list",
+          "cachedResultName": "personas_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/YGOy3MLg2A0DhlZe"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "persona_id",
+              "keyValue": "={{ $json.persona_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "usage_count": "={{ $json.usage_count }}",
+            "active_persona": "={{ $json.active_persona }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "persona_id",
+              "displayName": "persona_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lifecycle_stage",
+              "displayName": "lifecycle_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "usage_count",
+              "displayName": "usage_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active_persona",
+              "displayName": "active_persona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "persona_title",
+              "displayName": "persona_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "persona_json",
+              "displayName": "persona_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1424,
+        992
+      ],
+      "id": "60486e2e-cc01-4b87-83e4-d0465d39ad80",
+      "name": "Update row(s)1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Edit Fields').item.json.mode }}",
+                    "rightValue": "FULL_RESET",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "7f444d5c-a645-45d7-92de-d78ca94e9154"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "73504f60-ebbb-4dd2-8753-bb1720ce287d",
+                    "leftValue": "={{ $('Edit Fields').item.json.mode }}",
+                    "rightValue": "PARTIAL_SWAP",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        688,
+        800
+      ],
+      "id": "7e9eb123-88ff-4cc2-9a3d-2ed3358c9e89",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YGOy3MLg2A0DhlZe",
+          "mode": "list",
+          "cachedResultName": "personas_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/YGOy3MLg2A0DhlZe"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "persona_id",
+              "keyValue": "={{ $('Get row(s)4').item.json.persona_id }}"
+            },
+            {
+              "keyName": "active_persona",
+              "keyValue": "true"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "active_persona": "false"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "persona_id",
+              "displayName": "persona_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lifecycle_stage",
+              "displayName": "lifecycle_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "usage_count",
+              "displayName": "usage_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active_persona",
+              "displayName": "active_persona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "persona_title",
+              "displayName": "persona_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "persona_json",
+              "displayName": "persona_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        720
+      ],
+      "id": "5e82b268-ede2-4d09-87cd-1a975b7d54fd",
+      "name": "set_active_persona_false",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "YGOy3MLg2A0DhlZe",
+          "mode": "list",
+          "cachedResultName": "personas_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/YGOy3MLg2A0DhlZe"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "active_persona",
+              "keyValue": "true"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        1344
+      ],
+      "id": "36ce4df4-910e-4e5c-bab7-8d4499dc0416",
+      "name": "get_active_personas"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "IDor3CGBdf3G2k5H",
+          "mode": "list",
+          "cachedResultName": "prompt_pool",
+          "cachedResultUrl": "/projects/rBb9aYQ8k1Xq6ud5/datatables/IDor3CGBdf3G2k5H"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "persona_id",
+              "keyValue": "={{ $json.persona_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        1344
+      ],
+      "id": "8ca6b696-e0d9-40be-acd1-2732848b45b5",
+      "name": "get_pormpts_of_active_personas"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Execution\nSelected prompts are dispatched across OpenAI and Google Gemini APIs, with responses logged to prompt_answer. ",
+        "height": 128,
+        "width": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        1184
+      ],
+      "typeVersion": 1,
+      "id": "cad9a7ea-6384-4c84-8ed6-cf08f49f860a",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "get_active_personas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_seed_data(30)": {
+      "main": [
+        [
+          {
+            "node": "turn_ai_output_into_parseable_json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "turn_ai_output_into_parseable_json": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Seeds1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Seeds1": {
+      "main": [
+        [
+          {
+            "node": "generate_personas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate_personas": {
+      "main": [
+        [
+          {
+            "node": "format_ai_persona_output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "format_ai_persona_output": {
+      "main": [
+        [
+          {
+            "node": "insert_to_persona_pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Insert row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_prompt_returns": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_todays_prompts": {
+      "main": [
+        [
+          {
+            "node": "get_prompt_returns",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "get_prompt_returns1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_prompt_returns1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Insert row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "format_ai_output_into_json1": {
+      "main": [
+        [
+          {
+            "node": "inser_prompts_in_prompt_pool1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate_promopts1": {
+      "main": [
+        [
+          {
+            "node": "format_ai_output_into_json1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_personas": {
+      "main": [
+        [
+          {
+            "node": "batch_personas_in_10_item_batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inser_prompts_in_prompt_pool1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "generate_promopts1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "batch_personas_in_10_item_batches": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)4": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "select_initial_active_personas": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "monthly_replace_personas": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "set_active_persona_false",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "monthly_replace_personas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_active_persona_false": {
+      "main": [
+        [
+          {
+            "node": "select_initial_active_personas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_active_personas": {
+      "main": [
+        [
+          {
+            "node": "get_pormpts_of_active_personas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_pormpts_of_active_personas": {
+      "main": [
+        [
+          {
+            "node": "fetch_todays_prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ae543039-55f8-4932-b58a-8b6b14e4a71b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "89e093af4572f82cfc9bb1dcc3867297a4a1765c4464ae54ba6587d3484f7ef7"
+  },
+  "nodeGroups": [],
+  "id": "hICwGnM9wVSExbJq",
+  "tags": []
+}
