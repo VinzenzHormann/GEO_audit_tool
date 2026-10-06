@@ -19,7 +19,7 @@ Brand identity -> seeds -> personas -> prompt
 * **Seed \& Persona Generation:** Extracts core user goals and pain points per seed to generate realistic buyer personas saved to personas_pool.
 * **Prompt Pool Expansion:** Automatically expands each persona into a matrix of targeted queries, stored in prompt_pool.
 
-![workflow for 1. Persona & Prompt Pool Generation](ss/1._Persona_&_Prompt_Pool_Generation.png.png)
+![workflow for 1. Persona & Prompt Pool Generation](ss/1._Persona_&_Prompt_Pool_Generation.png)
 
 ### **2. Active Persona Selection & Daily Cycle Strategy**
 * **Macro-Rotation (Monthly):** Uses usage-weighted scoring and a modified Fisher-Yates shuffle to rotate out \~30% of active personas monthly.
